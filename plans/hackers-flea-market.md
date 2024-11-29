@@ -1,4 +1,4 @@
-# Hacker Flea Market
+# Hacker's Flea Market
 
 フリマイベント。出店するためには参加費＆LT登壇が求められる。
 
