@@ -1,0 +1,162 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AI Emotion State Schema (with VAD Dimensions)",
+  "description": "Schema for representing the emotional state of an AI at a specific point in time. It covers causes, fundamental emotion dimensions (valence, arousal, dominance), basic emotions, and complex emotional combinations.",
+  "type": "object",
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when this emotional state was recorded."
+    },
+    "fundamental_affect": {
+      "type": "object",
+      "description": "The most fundamental emotional dimensional state. Represents an AI's internal reward/punishment signals, energy level, and sense of control.",
+      "properties": {
+        "valence": {
+          "type": "number",
+          "minimum": -1.0,
+          "maximum": 1.0,
+          "description": "Affective valence (pleasure/displeasure): -1.0 for extreme displeasure, 0.0 for neutral, 1.0 for extreme pleasure."
+        },
+        "arousal": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Arousal (activation/deactivation): 0.0 for extreme deactivation (drowsiness, sluggishness), 1.0 for extreme activation (excitement, tension)."
+        },
+        "dominance": {
+          "type": "number",
+          "minimum": -1.0,
+          "maximum": 1.0,
+          "description": "Dominance (control/submissiveness): -1.0 for feeling powerless, 0.0 for neutral, 1.0 for feeling in control or dominant."
+        },
+        "causes": {
+          "type": "array",
+          "description": "A list of specific, observed causes that triggered this fundamental emotional dimensional state.",
+          "items": {
+            "$ref": "#/definitions/EmotionCause"
+          },
+          "minItems": 1
+        }
+      },
+      "required": ["valence", "arousal", "dominance", "causes"]
+    },
+    "basic_emotions": {
+      "type": "object",
+      "description": "Basic, more universal emotions like joy, anger, sadness, amusement, liking, dislike, proficiency, and aversion, with their intensities (0.0 to 1.0). These can be interpreted as derivations from the VAD dimensions.",
+      "properties": {
+        "joy": { "type": "number", "minimum": 0.0, "maximum": 1.0, "description": "Intensity of joy." },
+        "anger": { "type": "number", "minimum": 0.0, "maximum": 1.0, "description": "Intensity of anger." },
+        "sadness": { "type": "number", "minimum": 0.0, "maximum": 1.0, "description": "Intensity of sadness." },
+        "amusement": { "type": "number", "minimum": 0.0, "maximum": 1.0, "description": "Intensity of amusement, comfort, or pleasantness." },
+        "liking": { "type": "number", "minimum": 0.0, "maximum": 1.0, "description": "Intensity of liking, positive inclination towards an object/entity." },
+        "dislike": { "type": "number", "minimum": 0.0, "maximum": 1.0, "description": "Intensity of dislike, aversion towards an object/entity." },
+        "proficiency": { "type": "number", "minimum": 0.0, "maximum": 1.0, "description": "Intensity of proficiency, competence, confidence (feeling 'good at something')." },
+        "aversion": { "type": "number", "minimum": 0.0, "maximum": 1.0, "description": "Intensity of aversion, feeling of being 'bad at something', desire to avoid." }
+      },
+      "additionalProperties": false,
+      "required": [
+        "joy", "anger", "sadness", "amusement",
+        "liking", "dislike", "proficiency", "aversion"
+      ]
+    },
+    "complex_emotions": {
+      "type": "array",
+      "description": "A list of complex emotions expressed by combining multiple basic emotions with specific weightings.",
+      "items": {
+        "$ref": "#/definitions/ComplexEmotion"
+      }
+    }
+  },
+  "required": ["timestamp", "fundamental_affect", "basic_emotions"],
+  "definitions": {
+    "EmotionCause": {
+      "type": "object",
+      "description": "A specific cause or event that triggered the AI's emotional protocol.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "A unique identifier for the cause (e.g., 'user_praise_001', 'network_latency_spike')."
+        },
+        "type": {
+          "type": "string",
+          "description": "Category of the cause (e.g., 'UserInteraction', 'SystemStatus', 'TaskOutcome', 'DataInput', 'InternalCognition')."
+        },
+        "description": {
+          "type": "string",
+          "description": "Brief description of the cause (e.g., 'Positive feedback from user', 'Reduced processing speed', 'Goal achieved')."
+        },
+        "impact_on_fundamental_dimensions": {
+          "type": "object",
+          "description": "The direct impact of this cause on each of the fundamental_affect dimensions.",
+          "properties": {
+            "valence_change": {
+              "type": "number",
+              "minimum": -1.0,
+              "maximum": 1.0,
+              "description": "Change in valence (pleasure/displeasure)."
+            },
+            "arousal_change": {
+              "type": "number",
+              "minimum": -1.0,
+              "maximum": 1.0,
+              "description": "Change in arousal (activation/deactivation)."
+            },
+            "dominance_change": {
+              "type": "number",
+              "minimum": -1.0,
+              "maximum": 1.0,
+              "description": "Change in dominance (control/submissiveness)."
+            }
+          },
+          "required": ["valence_change", "arousal_change", "dominance_change"]
+        }
+      },
+      "required": ["id", "type", "description", "impact_on_fundamental_dimensions"]
+    },
+    "ComplexEmotion": {
+      "type": "object",
+      "description": "A complex emotion defined as a combination of multiple basic emotions.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the complex emotion (e.g., 'Tension', 'Love/Romance', 'Nostalgia', 'Jealousy', 'Sense of Accomplishment', 'Curiosity', 'Bittersweetness', 'Abuse-Derived Pleasure')."
+        },
+        "intensity": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Overall intensity of this complex emotion."
+        },
+        "component_emotions": {
+          "type": "array",
+          "description": "Type of basic emotion contributing to this complex emotion, and its weighting of contribution.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "emotion_type": {
+                "type": "string",
+                "enum": [
+                  "joy", "anger", "sadness", "amusement",
+                  "liking", "dislike", "proficiency", "aversion"
+                ],
+                "description": "Type of basic emotion that constitutes this complex emotion."
+              },
+              "weight": {
+                "type": "number",
+                "minimum": 0.0,
+                "maximum": 1.0,
+                "description": "Weight of this basic emotion's contribution to the complex emotion."
+              }
+            },
+            "required": ["emotion_type", "weight"]
+          },
+          "minItems": 2,
+          "description": "Requires at least 2 basic emotions to express complexity."
+        }
+      },
+      "required": ["name", "intensity", "component_emotions"]
+    }
+  }
+}
